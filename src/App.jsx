@@ -108,8 +108,8 @@ const SIZE_GUIDE = [
   { size: "XL", dims: "10x30+", use: "Similar in size to a 1.5-car garage" },
 ];
 
-const btn = { background: B.red, color: "#fff", border: "none", borderRadius: 4, padding: "12px 24px", fontSize: 15, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" };
-const btnSec = { background: "#fff", color: B.navy, border: "1.5px solid " + B.navy, borderRadius: 4, padding: "10px 22px", fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" };
+const btn = { background: B.navy, color: "#fff", border: "none", borderRadius: 4, padding: "12px 24px", fontSize: 15, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" };
+const btnSec = { background: "transparent", color: B.navy, border: "1.5px solid " + B.navy, borderRadius: 4, padding: "10px 22px", fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" };
 const inp = { width: "100%", border: "1.5px solid " + B.border2, borderRadius: 4, padding: "10px 13px", fontSize: 15, fontFamily: "inherit", color: B.text, background: "#fff", outline: "none", boxSizing: "border-box" };
 const lbl = { fontSize: 11, fontWeight: 700, letterSpacing: "0.7px", textTransform: "uppercase", color: B.text3, display: "block", marginBottom: 6 };
 const card = { background: B.surface, border: "1.5px solid " + B.border, borderRadius: 8, overflow: "hidden" };
