@@ -674,7 +674,7 @@ export const CheckoutView = ({ isMobile, onBack, onConfirm, unit }) => {
   const unitLabel = activeUnit?.label ?? "Medium Climate-Controlled";
   const unitDesc = activeUnit ? `${activeUnit.size} · ${activeUnit.dim}` : "Medium · 10x10";
   const unitFacility = activeUnit?.facilityName ?? "Buckhead, Peachtree Rd";
-  const hasPromo = activeUnit?.promo ?? false;
+  const hasPromo = unit?.promo ?? false; // keep original unit's promo even after upgrade
   const adminFee = 25;
   const promoDiscount = hasPromo ? monthlyRent : 0;
   const total = monthlyRent - promoDiscount + adminFee + selectedPlan.price;
