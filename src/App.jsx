@@ -504,7 +504,7 @@ export const SearchView = ({ isMobile, onFacility, onSelectUnit }) => {
                           <span style={{ fontSize: 13, color: B.text3 }}>/mo</span>
                           {unit.was && <span style={{ fontSize: 12, color: B.text3, textDecoration: "line-through", marginLeft: 4 }}>${unit.was}</span>}
                         </div>
-                        <button onClick={onSelectUnit} style={{ ...btn, width: "100%", padding: "9px 0", fontSize: 13 }}>Reserve</button>
+                        <button onClick={onSelectUnit} style={{ ...(unit.popular ? btn : btnSec), width: "100%", padding: "9px 0", fontSize: 13 }}>Reserve</button>
                       </div>
                     </div>
                   </div>
@@ -633,7 +633,7 @@ export const FacilityView = ({ facility, isMobile, onBack, onSelectUnit }) => {
                     <div style={{ padding: "6px 14px 14px" }}>
                       <div style={{ fontSize: 14, fontWeight: 700, color: B.navy, marginBottom: 10 }}>{unit.label}</div>
                       <div style={{ fontSize: 22, fontWeight: 700, color: B.navy, marginBottom: 8 }}>${unit.price}<span style={{ fontSize: 12, fontWeight: 400, color: B.text3 }}>/mo</span></div>
-                      <button onClick={onSelectUnit} style={{ ...btn, width: "100%", padding: "8px 0", fontSize: 13 }}>Reserve</button>
+                      <button onClick={onSelectUnit} style={{ ...(unit.popular ? btn : btnSec), width: "100%", padding: "8px 0", fontSize: 13 }}>Reserve</button>
                     </div>
                   </div>
                 ))}
