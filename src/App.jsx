@@ -670,10 +670,17 @@ export const FacilityView = ({ facility, isMobile, onBack, onSelectUnit }) => {
 };
 
 export const CheckoutView = ({ isMobile, onBack, onConfirm, unit }) => {
+  const TODAY = new Date().toISOString().split("T")[0];
   const [form, setForm] = useState({ email: "", fullName: "", card: "", expiry: "", cvv: "", nameOnCard: "", protection: "basic" });
   const [acceptedUpgrade, setAcceptedUpgrade] = useState(false);
   const [upsellDismissed, setUpsellDismissed] = useState(false);
+  const [moveInDate, setMoveInDate] = useState(TODAY);
   const set = k => e => setForm(p => ({ ...p, [k]: e.target.value }));
+
+  const isToday = moveInDate === TODAY;
+  const moveInLabel = isToday
+    ? "Today"
+    : new Date(moveInDate + "T12:00:00").toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
 
   const PROTECTION_PLANS = [
     { id: "basic", label: "Basic Coverage", price: 12, desc: "Up to $2,000 contents value" },
@@ -826,7 +833,56 @@ export const CheckoutView = ({ isMobile, onBack, onConfirm, unit }) => {
               </div>
             </div>
 
-            {/* 2 — Protection plan */}
+            {/* 2 — Move-in date */}
+            <div style={{ ...card, marginBottom: 14 }}>
+              <SectionHeader title="Move-in date" sub="Your unit is ready whenever you are." />
+              <div style={{ padding: 18 }}>
+                <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
+                  <button
+                    onClick={() => setMoveInDate(TODAY)}
+                    style={{
+                      flex: 1, padding: "11px 0", borderRadius: 4, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "inherit",
+                      background: isToday ? B.navy : "transparent",
+                      color: isToday ? "#fff" : B.navy,
+                      border: isToday ? "2px solid " + B.navy : "1.5px solid " + B.border2,
+                    }}
+                  >
+                    Today
+                  </button>
+                  <button
+                    onClick={() => { if (isToday) { const d = new Date(); d.setDate(d.getDate() + 1); setMoveInDate(d.toISOString().split("T")[0]); } }}
+                    style={{
+                      flex: 1, padding: "11px 0", borderRadius: 4, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "inherit",
+                      background: !isToday ? B.navy : "transparent",
+                      color: !isToday ? "#fff" : B.navy,
+                      border: !isToday ? "2px solid " + B.navy : "1.5px solid " + B.border2,
+                    }}
+                  >
+                    Future date
+                  </button>
+                </div>
+                {!isToday && (
+                  <div>
+                    <label style={lbl}>Select date</label>
+                    <input
+                      type="date"
+                      min={new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().split("T")[0]}
+                      value={moveInDate}
+                      onChange={e => setMoveInDate(e.target.value)}
+                      style={{ ...inp, colorScheme: "light" }}
+                    />
+                  </div>
+                )}
+                <div style={{ marginTop: isToday ? 0 : 12, display: "flex", alignItems: "center", gap: 8, padding: "10px 12px", background: isToday ? B.greenBg : "#EEF3FF", borderRadius: 4 }}>
+                  <span style={{ fontSize: 16 }}>{isToday ? "🔑" : "📅"}</span>
+                  <span style={{ fontSize: 13, color: isToday ? B.green : B.navy, fontWeight: 600 }}>
+                    {isToday ? "Move in in 3 minutes — access code ready immediately" : `Unit reserved for ${moveInLabel}`}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* 4 — Protection plan */}
             <div style={{ ...card, marginBottom: 14 }}>
               <div style={{ padding: "14px 18px", borderBottom: "1px solid " + B.border, display: "flex", alignItems: "center", gap: 10 }}>
                 <div style={{ fontSize: 13, fontWeight: 700, color: B.navy, textTransform: "uppercase", letterSpacing: "0.5px" }}>Protection Plan</div>
@@ -866,7 +922,7 @@ export const CheckoutView = ({ isMobile, onBack, onConfirm, unit }) => {
               </div>
             </div>
 
-            {/* 3 — Payment */}
+            {/* 5 — Payment */}
             <div style={{ ...card, marginBottom: 20 }}>
               <SectionHeader title="Payment" sub="Charged only after you confirm your rental." />
               <div style={{ padding: 18 }}>
@@ -894,7 +950,7 @@ export const CheckoutView = ({ isMobile, onBack, onConfirm, unit }) => {
             {/* CTA — desktop only (mobile CTA lives in order summary, after the total) */}
             {!isMobile && (
               <>
-                <button data-testid="pay-button" onClick={() => onConfirm(activeUnit)} style={{ ...btn, width: "100%", padding: 15, fontSize: 16, marginBottom: 10 }}>
+                <button data-testid="pay-button" onClick={() => onConfirm(activeUnit, moveInDate)} style={{ ...btn, width: "100%", padding: 15, fontSize: 16, marginBottom: 10 }}>
                   Complete checkout — ${total}.00
                 </button>
                 <div style={{ textAlign: "center", fontSize: 12, color: B.text3, marginBottom: 5 }}>256-bit SSL · Charged only after you confirm</div>
@@ -914,7 +970,13 @@ export const CheckoutView = ({ isMobile, onBack, onConfirm, unit }) => {
               </div>
               <div style={{ padding: "16px 18px" }}>
                 <div style={{ fontWeight: 700, fontSize: 15, color: B.navy, marginBottom: 2 }}>{unitLabel}</div>
-                <div style={{ fontSize: 13, color: B.text3, marginBottom: 16 }}>{unitDesc} · {unitFacility}</div>
+                <div style={{ fontSize: 13, color: B.text3, marginBottom: 8 }}>{unitDesc} · {unitFacility}</div>
+                <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 16 }}>
+                  <span style={{ fontSize: 12 }}>{isToday ? "🔑" : "📅"}</span>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: isToday ? B.green : B.navy }}>
+                    {isToday ? "Move in in 3 minutes" : `Move in ${moveInLabel}`}
+                  </span>
+                </div>
                 {hasPromo && (
                   <div style={{ background: "#fde68a", borderRadius: 4, padding: "6px 10px", marginBottom: 14, fontSize: 12, fontWeight: 700, color: B.navy }}>
                     🎉 First Month Free applied
@@ -957,12 +1019,18 @@ export const CheckoutView = ({ isMobile, onBack, onConfirm, unit }) => {
 };
 
 // @spec CHKOUT-CONF-001, CHKOUT-CONF-002, CHKOUT-CONF-003, CHKOUT-CONF-004
-export const ConfirmView = ({ onHome, unit }) => (
+export const ConfirmView = ({ onHome, unit, moveInDate }) => {
+  const TODAY = new Date().toISOString().split("T")[0];
+  const isToday = !moveInDate || moveInDate === TODAY;
+  const moveInLabel = isToday
+    ? "today"
+    : new Date(moveInDate + "T12:00:00").toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
+  return (
   <div style={{ fontFamily: "'Open Sans', sans-serif" }}>
     <div style={{ background: B.navy, padding: "48px 0", textAlign: "center" }}>
       <div style={{ width: 64, height: 64, background: B.green, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px", fontSize: 28, color: "#fff", fontWeight: 700 }}>+</div>
       <h1 style={{ fontFamily: "'Open Sans', sans-serif", fontSize: "clamp(26px,4vw,40px)", fontWeight: 700, color: "#fff", marginBottom: 12 }}>You're in.</h1>
-      <p style={{ color: "rgba(255,255,255,0.7)", fontSize: 16 }}>{unit?.label ?? "Medium Climate-Controlled"} · {unit?.facilityName ?? "Buckhead"} · Move-in starts today</p>
+      <p style={{ color: "rgba(255,255,255,0.7)", fontSize: 16 }}>{unit?.label ?? "Medium Climate-Controlled"} · {unit?.facilityName ?? "Buckhead"} · Move-in {moveInLabel}</p>
     </div>
     <div style={{ ...ctrNarrow, padding: "40px 24px" }}>
       <div style={{ ...card, border: "2px solid " + B.navy, marginBottom: 24, padding: 22 }}>
@@ -1004,7 +1072,8 @@ export const ConfirmView = ({ onHome, unit }) => (
       </div>
     </div>
   </div>
-);
+  );
+};
 
 // @spec RESP-FOOT-001, RESP-FOOT-002
 export const Footer = ({ isMobile }) => (
@@ -1040,6 +1109,7 @@ export default function App() {
   const [view, setView] = useState("home");
   const [selectedFacility, setSelectedFacility] = useState(FACILITIES[0]);
   const [selectedUnit, setSelectedUnit] = useState(null);
+  const [moveInDate, setMoveInDate] = useState(null);
 
   const go = v => { setView(v); window.scrollTo({ top: 0, behavior: "smooth" }); };
   const handleFacility = fac => { setSelectedFacility(fac); go("facility"); };
@@ -1054,8 +1124,8 @@ export default function App() {
         {view === "home"     && <HomeView isMobile={isMobile} onSearch={() => go("search")} />}
         {view === "search"   && <SearchView isMobile={isMobile} onFacility={handleFacility} onSelectUnit={handleSelectUnit} />}
         {view === "facility" && <FacilityView isMobile={isMobile} facility={selectedFacility} onBack={() => go("search")} onSelectUnit={handleSelectUnit} />}
-        {view === "checkout" && <CheckoutView isMobile={isMobile} unit={selectedUnit} onBack={() => go("search")} onConfirm={(activeUnit) => { if (activeUnit) setSelectedUnit(activeUnit); go("confirm"); }} />}
-        {view === "confirm"  && <ConfirmView unit={selectedUnit} onHome={() => go("home")} />}
+        {view === "checkout" && <CheckoutView isMobile={isMobile} unit={selectedUnit} onBack={() => go("search")} onConfirm={(activeUnit, date) => { if (activeUnit) setSelectedUnit(activeUnit); if (date) setMoveInDate(date); go("confirm"); }} />}
+        {view === "confirm"  && <ConfirmView unit={selectedUnit} moveInDate={moveInDate} onHome={() => go("home")} />}
       </div>
       <Footer isMobile={isMobile} />
     </div>
