@@ -648,6 +648,8 @@ export const FacilityView = ({ facility, isMobile, onBack, onSelectUnit }) => {
 
 export const CheckoutView = ({ isMobile, onBack, onConfirm, unit }) => {
   const [form, setForm] = useState({ email: "", fullName: "", card: "", expiry: "", cvv: "", nameOnCard: "", protection: "basic" });
+  const [acceptedUpgrade, setAcceptedUpgrade] = useState(false);
+  const [upsellDismissed, setUpsellDismissed] = useState(false);
   const set = k => e => setForm(p => ({ ...p, [k]: e.target.value }));
 
   const PROTECTION_PLANS = [
@@ -656,11 +658,23 @@ export const CheckoutView = ({ isMobile, onBack, onConfirm, unit }) => {
   ];
   const selectedPlan = PROTECTION_PLANS.find(p => p.id === form.protection) || PROTECTION_PLANS[0];
 
-  const monthlyRent = unit?.price ?? 119;
-  const unitLabel = unit?.label ?? "Medium Climate-Controlled";
-  const unitDesc = unit ? `${unit.size} · ${unit.dim}` : "Medium · 10x10";
-  const unitFacility = unit?.facilityName ?? "Buckhead, Peachtree Rd";
-  const hasPromo = unit?.promo ?? false;
+  // Upgrade logic — find next tier in the same size group
+  const tierOrder = ["Good", "Better", "Best"];
+  const currentTierIdx = unit ? tierOrder.indexOf(unit.tier) : -1;
+  const currentGroup = unit ? UNIT_GROUPS.find(g => g.size === unit.size) : null;
+  const upgradeUnit = (currentGroup && currentTierIdx >= 0 && currentTierIdx < tierOrder.length - 1)
+    ? currentGroup.units[currentTierIdx + 1]
+    : null;
+  const priceDiff = upgradeUnit ? upgradeUnit.price - (unit?.price ?? 0) : 0;
+  const activeUnit = acceptedUpgrade && upgradeUnit
+    ? { ...upgradeUnit, size: unit.size, dim: unit.dim, facilityName: unit.facilityName }
+    : unit;
+
+  const monthlyRent = activeUnit?.price ?? 119;
+  const unitLabel = activeUnit?.label ?? "Medium Climate-Controlled";
+  const unitDesc = activeUnit ? `${activeUnit.size} · ${activeUnit.dim}` : "Medium · 10x10";
+  const unitFacility = activeUnit?.facilityName ?? "Buckhead, Peachtree Rd";
+  const hasPromo = activeUnit?.promo ?? false;
   const adminFee = 25;
   const promoDiscount = hasPromo ? monthlyRent : 0;
   const total = monthlyRent - promoDiscount + adminFee + selectedPlan.price;
@@ -694,6 +708,85 @@ export const CheckoutView = ({ isMobile, onBack, onConfirm, unit }) => {
         >
           {/* ── Form column ───────────────────────────────────────── */}
           <div data-testid="checkout-form">
+
+            {/* Upsell card — shown when next tier is available and user hasn't dismissed */}
+            {!upsellDismissed && upgradeUnit && !acceptedUpgrade && (
+              <div style={{ marginBottom: 16, border: "2px solid " + B.navy, borderRadius: 8, overflow: "hidden" }}>
+                <div style={{ background: B.navy, padding: "10px 18px", display: "flex", alignItems: "center", gap: 8 }}>
+                  <span style={{ color: "#fbbf24", fontSize: 15 }}>↑</span>
+                  <span style={{ color: "#fff", fontSize: 12, fontWeight: 700, letterSpacing: "0.5px", textTransform: "uppercase" }}>Upgrade available</span>
+                  <span style={{ marginLeft: "auto", color: "rgba(255,255,255,0.45)", fontSize: 11 }}>Limited availability</span>
+                </div>
+                <div style={{ background: "#EEF3FF", padding: 16 }}>
+                  <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 28px 1fr", gap: 10, alignItems: "center", marginBottom: 14 }}>
+                    {/* Current unit */}
+                    <div style={{ background: "#fff", borderRadius: 6, padding: "12px 14px", border: "1.5px solid " + B.border }}>
+                      <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", color: B.text3, letterSpacing: "0.5px", marginBottom: 6 }}>Your selection</div>
+                      <div style={{ fontWeight: 700, fontSize: 14, color: B.navy, marginBottom: 2 }}>{unit.label}</div>
+                      <div style={{ fontSize: 13, color: B.text3, marginBottom: 8 }}>${unit.price}/mo</div>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+                        {unit.features.slice(0, 3).map(f => (
+                          <div key={f} style={{ fontSize: 11, color: B.text3, display: "flex", alignItems: "center", gap: 5 }}>
+                            <span>·</span>{f}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    {/* Arrow */}
+                    <div style={{ fontSize: 18, color: B.navy, fontWeight: 700, textAlign: "center", opacity: 0.5 }}>
+                      {isMobile ? "↓" : "→"}
+                    </div>
+                    {/* Upgrade unit */}
+                    <div style={{ background: "#fff", borderRadius: 6, padding: "12px 14px", border: "2px solid " + B.navy, position: "relative" }}>
+                      <div style={{ position: "absolute", top: -1, right: 10, background: "#fbbf24", fontSize: 10, fontWeight: 700, color: B.navy, padding: "2px 8px", borderRadius: "0 0 4px 4px" }}>
+                        +${priceDiff}/mo
+                      </div>
+                      <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", color: upgradeUnit.tierColor, letterSpacing: "0.5px", marginBottom: 6 }}>{upgradeUnit.tier}</div>
+                      <div style={{ fontWeight: 700, fontSize: 14, color: B.navy, marginBottom: 2 }}>{upgradeUnit.label}</div>
+                      <div style={{ fontSize: 13, color: B.navy, fontWeight: 600, marginBottom: 8 }}>${upgradeUnit.price}/mo</div>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+                        {upgradeUnit.features.slice(0, 4).map(f => (
+                          <div key={f} style={{ fontSize: 11, color: B.text2, display: "flex", alignItems: "center", gap: 5 }}>
+                            <span style={{ color: B.green, fontWeight: 700 }}>✓</span>{f}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setAcceptedUpgrade(true)}
+                    style={{ ...btn, width: "100%", marginBottom: 10 }}
+                  >
+                    Upgrade to {upgradeUnit.label} — only ${priceDiff} more/mo
+                  </button>
+                  <div style={{ textAlign: "center" }}>
+                    <button
+                      onClick={() => setUpsellDismissed(true)}
+                      style={{ background: "none", border: "none", color: B.text3, fontSize: 13, cursor: "pointer", fontFamily: "inherit", textDecoration: "underline" }}
+                    >
+                      No thanks, keep my {unit.label}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Upgrade accepted confirmation */}
+            {acceptedUpgrade && upgradeUnit && (
+              <div style={{ background: B.greenBg, border: "1.5px solid " + B.green, borderRadius: 8, padding: "12px 16px", marginBottom: 14, display: "flex", alignItems: "center", gap: 10 }}>
+                <span style={{ color: B.green, fontSize: 16, fontWeight: 700 }}>✓</span>
+                <div style={{ flex: 1, fontSize: 13 }}>
+                  <span style={{ fontWeight: 700, color: B.green }}>Upgraded to {upgradeUnit.label}</span>
+                  <span style={{ color: B.text3, marginLeft: 8 }}>+${priceDiff}/mo</span>
+                </div>
+                <button
+                  onClick={() => setAcceptedUpgrade(false)}
+                  style={{ background: "none", border: "none", color: B.text3, fontSize: 12, cursor: "pointer", fontFamily: "inherit", textDecoration: "underline", flexShrink: 0 }}
+                >
+                  Undo
+                </button>
+              </div>
+            )}
 
             {/* 1 — Contact */}
             <div style={{ ...card, marginBottom: 14 }}>
@@ -778,7 +871,7 @@ export const CheckoutView = ({ isMobile, onBack, onConfirm, unit }) => {
             {/* CTA — desktop only (mobile CTA lives in order summary, after the total) */}
             {!isMobile && (
               <>
-                <button data-testid="pay-button" onClick={onConfirm} style={{ ...btn, width: "100%", padding: 15, fontSize: 16, marginBottom: 10 }}>
+                <button data-testid="pay-button" onClick={() => onConfirm(activeUnit)} style={{ ...btn, width: "100%", padding: 15, fontSize: 16, marginBottom: 10 }}>
                   Reserve &amp; Pay ${total}.00
                 </button>
                 <div style={{ textAlign: "center", fontSize: 12, color: B.text3, marginBottom: 5 }}>256-bit SSL · Charged only after you confirm</div>
@@ -938,7 +1031,7 @@ export default function App() {
         {view === "home"     && <HomeView isMobile={isMobile} onSearch={() => go("search")} />}
         {view === "search"   && <SearchView isMobile={isMobile} onFacility={handleFacility} onSelectUnit={handleSelectUnit} />}
         {view === "facility" && <FacilityView isMobile={isMobile} facility={selectedFacility} onBack={() => go("search")} onSelectUnit={handleSelectUnit} />}
-        {view === "checkout" && <CheckoutView isMobile={isMobile} unit={selectedUnit} onBack={() => go("search")} onConfirm={() => go("confirm")} />}
+        {view === "checkout" && <CheckoutView isMobile={isMobile} unit={selectedUnit} onBack={() => go("search")} onConfirm={(activeUnit) => { if (activeUnit) setSelectedUnit(activeUnit); go("confirm"); }} />}
         {view === "confirm"  && <ConfirmView unit={selectedUnit} onHome={() => go("home")} />}
       </div>
       <Footer isMobile={isMobile} />
