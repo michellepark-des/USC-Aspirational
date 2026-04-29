@@ -483,7 +483,7 @@ export const SearchView = ({ isMobile, onFacility, onSelectUnit }) => {
                 {group.units.map(unit => (
                   <div key={unit.tier} style={{ ...card, border: unit.popular ? "2px solid " + B.navy : "1.5px solid " + B.border, display: "flex", flexDirection: "column" }}>
                     {unit.promo && (
-                      <div style={{ background: "#fbbf24", padding: "5px 14px", fontSize: 11, fontWeight: 700, color: B.navy, letterSpacing: "0.3px" }}>
+                      <div style={{ background: "#fde68a", padding: "5px 14px", fontSize: 11, fontWeight: 700, color: B.navy, letterSpacing: "0.3px" }}>
                         🎉 First Month Free
                       </div>
                     )}
@@ -622,7 +622,7 @@ export const FacilityView = ({ facility, isMobile, onBack, onSelectUnit }) => {
                 {group.units.map(unit => (
                   <div key={unit.tier} style={{ ...card, border: unit.popular ? "2px solid " + B.navy : "1.5px solid " + B.border }}>
                     {unit.promo && (
-                      <div style={{ background: "#fbbf24", padding: "5px 14px", fontSize: 11, fontWeight: 700, color: B.navy, letterSpacing: "0.3px" }}>
+                      <div style={{ background: "#fde68a", padding: "5px 14px", fontSize: 11, fontWeight: 700, color: B.navy, letterSpacing: "0.3px" }}>
                         🎉 First Month Free
                       </div>
                     )}
