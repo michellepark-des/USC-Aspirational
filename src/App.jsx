@@ -44,7 +44,7 @@ const UNIT_GROUPS = [
     id: "5x10", size: "Small", dim: "5x10", sqft: 50,
     analogy: "Similar in size to a walk-in closet. Fits a studio or 1-bedroom apartment.",
     units: [
-      { tier: "Good", tierColor: "#8499AF", price: 59, label: "Standard", detail: "Back of facility, upper floor, drive-up access", features: ["Drive-up", "Upper floor", "Lock included"], promo: true },
+      { tier: "Good", tierColor: "#8499AF", price: 59, label: "Standard", detail: "Back of facility, upper floor, drive-up access", features: ["Drive-up", "Upper floor", "Lock included"] },
       { tier: "Better", tierColor: "#5B789E", price: 74, was: 89, label: "Convenient", detail: "Mid-facility, ground floor, interior hallway access", features: ["Interior access", "Ground floor", "Lock included"] },
       { tier: "Best", tierColor: "#5A9176", price: 89, label: "Premium", detail: "Near entrance, ground floor, wide drive-up aisle", features: ["Near entrance", "Drive-up", "Ground floor", "Lock included"], popular: true },
     ],
@@ -54,7 +54,7 @@ const UNIT_GROUPS = [
     analogy: "Similar in size to a small bedroom. Fits a 2-bedroom house or typical garage.",
     units: [
       { tier: "Good", tierColor: "#8499AF", price: 89, label: "Standard", detail: "Back of facility, upper floor, interior access", features: ["Interior access", "Upper floor", "Lock included"] },
-      { tier: "Better", tierColor: "#5B789E", price: 109, was: 129, label: "Climate-Controlled", detail: "Climate-controlled, ground floor, interior hallway", features: ["Climate-controlled", "Ground floor", "Interior access", "Lock included"], popular: true, promo: true },
+      { tier: "Better", tierColor: "#5B789E", price: 109, was: 129, label: "Climate-Controlled", detail: "Climate-controlled, ground floor, interior hallway", features: ["Climate-controlled", "Ground floor", "Interior access", "Lock included"], popular: true },
       { tier: "Best", tierColor: "#5A9176", price: 129, label: "Climate-Controlled Premium", detail: "Climate-controlled, near elevator, ground floor, wide aisle", features: ["Climate-controlled", "Near elevator", "Ground floor", "Wide aisle", "Lock included"] },
     ],
   },
@@ -64,7 +64,7 @@ const UNIT_GROUPS = [
     units: [
       { tier: "Good", tierColor: "#8499AF", price: 129, label: "Standard Drive-Up", detail: "Back of facility, ground level, drive-up access", features: ["Drive-up", "Ground floor", "Lock included"] },
       { tier: "Better", tierColor: "#5B789E", price: 159, was: 179, label: "Climate-Controlled", detail: "Climate-controlled, ground floor, interior access", features: ["Climate-controlled", "Ground floor", "Interior access", "Lock included"], popular: true },
-      { tier: "Best", tierColor: "#5A9176", price: 189, label: "Climate-Controlled Premium", detail: "Climate-controlled, nearest to loading dock, oversized door", features: ["Climate-controlled", "Near loading dock", "Oversized door", "Ground floor", "Lock included"], promo: true },
+      { tier: "Best", tierColor: "#5A9176", price: 189, label: "Climate-Controlled Premium", detail: "Climate-controlled, nearest to loading dock, oversized door", features: ["Climate-controlled", "Near loading dock", "Oversized door", "Ground floor", "Lock included"] },
     ],
   },
   {
@@ -77,6 +77,13 @@ const UNIT_GROUPS = [
     ],
   },
 ];
+
+// Per-facility promo overrides — "groupId-tier" keys
+const FACILITY_PROMOS = {
+  buckhead:    new Set(["5x10-Good", "10x10-Better"]),
+  midtown:     new Set(["10x20-Best", "10x30-Good"]),
+  eastatlanta: new Set(["5x10-Better", "10x10-Good", "10x20-Better"]),
+};
 
 const STEPS = [
   { n: "1", title: "Choose a location and select a unit", body: "Find the facility nearest to you and pick the perfect size to fit your needs." },
@@ -490,9 +497,11 @@ export const SearchView = ({ isMobile, onFacility, onSelectUnit }) => {
                 data-testid="unit-cards-grid"
                 style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)", gap: 14 }}
               >
-                {group.units.map(unit => (
+                {group.units.map(unit => {
+                  const unitPromo = FACILITY_PROMOS[activeFacId]?.has(`${group.id}-${unit.tier}`) ?? false;
+                  return (
                   <div key={unit.tier} style={{ ...card, border: unit.popular ? "2px solid " + B.navy : "1.5px solid " + B.border, display: "flex", flexDirection: "column" }}>
-                    {unit.promo && (
+                    {unitPromo && (
                       <div style={{ background: "#fde68a", padding: "5px 14px", fontSize: 11, fontWeight: 700, color: B.navy, letterSpacing: "0.3px" }}>
                         🎉 First Month Free
                       </div>
@@ -514,11 +523,12 @@ export const SearchView = ({ isMobile, onFacility, onSelectUnit }) => {
                           <span style={{ fontSize: 13, color: B.text3 }}>/mo</span>
                           {unit.was && <span style={{ fontSize: 12, color: B.text3, textDecoration: "line-through", marginLeft: 4 }}>${unit.was}</span>}
                         </div>
-                        <button onClick={() => onSelectUnit({ ...unit, size: group.size, dim: group.dim, facilityName: activeFac.name })} style={{ ...(unit.popular ? btn : btnSec), width: "100%", padding: "9px 0", fontSize: 13 }}>Select unit</button>
+                        <button onClick={() => onSelectUnit({ ...unit, promo: unitPromo, size: group.size, dim: group.dim, facilityName: activeFac.name })} style={{ ...(unit.popular ? btn : btnSec), width: "100%", padding: "9px 0", fontSize: 13 }}>Select unit</button>
                       </div>
                     </div>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           ))}
@@ -629,9 +639,11 @@ export const FacilityView = ({ facility, isMobile, onBack, onSelectUnit }) => {
                 data-testid="unit-cards-grid"
                 style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)", gap: 12 }}
               >
-                {group.units.map(unit => (
+                {group.units.map(unit => {
+                  const unitPromo = FACILITY_PROMOS[f.id]?.has(`${group.id}-${unit.tier}`) ?? false;
+                  return (
                   <div key={unit.tier} style={{ ...card, border: unit.popular ? "2px solid " + B.navy : "1.5px solid " + B.border }}>
-                    {unit.promo && (
+                    {unitPromo && (
                       <div style={{ background: "#fde68a", padding: "5px 14px", fontSize: 11, fontWeight: 700, color: B.navy, letterSpacing: "0.3px" }}>
                         🎉 First Month Free
                       </div>
@@ -643,10 +655,11 @@ export const FacilityView = ({ facility, isMobile, onBack, onSelectUnit }) => {
                     <div style={{ padding: "6px 14px 14px" }}>
                       <div style={{ fontSize: 14, fontWeight: 700, color: B.navy, marginBottom: 10 }}>{unit.label}</div>
                       <div style={{ fontSize: 22, fontWeight: 700, color: B.navy, marginBottom: 8 }}>${unit.price}<span style={{ fontSize: 12, fontWeight: 400, color: B.text3 }}>/mo</span></div>
-                      <button onClick={() => onSelectUnit({ ...unit, size: group.size, dim: group.dim, facilityName: f.name })} style={{ ...(unit.popular ? btn : btnSec), width: "100%", padding: "8px 0", fontSize: 13 }}>Select unit</button>
+                      <button onClick={() => onSelectUnit({ ...unit, promo: unitPromo, size: group.size, dim: group.dim, facilityName: f.name })} style={{ ...(unit.popular ? btn : btnSec), width: "100%", padding: "8px 0", fontSize: 13 }}>Select unit</button>
                     </div>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           ))}
