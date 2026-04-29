@@ -504,7 +504,7 @@ export const SearchView = ({ isMobile, onFacility, onSelectUnit }) => {
                           <span style={{ fontSize: 13, color: B.text3 }}>/mo</span>
                           {unit.was && <span style={{ fontSize: 12, color: B.text3, textDecoration: "line-through", marginLeft: 4 }}>${unit.was}</span>}
                         </div>
-                        <button onClick={() => onSelectUnit({ ...unit, size: group.size, dim: group.dim, facilityName: activeFac.name })} style={{ ...(unit.popular ? btn : btnSec), width: "100%", padding: "9px 0", fontSize: 13 }}>Reserve</button>
+                        <button onClick={() => onSelectUnit({ ...unit, size: group.size, dim: group.dim, facilityName: activeFac.name })} style={{ ...(unit.popular ? btn : btnSec), width: "100%", padding: "9px 0", fontSize: 13 }}>Select unit</button>
                       </div>
                     </div>
                   </div>
@@ -633,7 +633,7 @@ export const FacilityView = ({ facility, isMobile, onBack, onSelectUnit }) => {
                     <div style={{ padding: "6px 14px 14px" }}>
                       <div style={{ fontSize: 14, fontWeight: 700, color: B.navy, marginBottom: 10 }}>{unit.label}</div>
                       <div style={{ fontSize: 22, fontWeight: 700, color: B.navy, marginBottom: 8 }}>${unit.price}<span style={{ fontSize: 12, fontWeight: 400, color: B.text3 }}>/mo</span></div>
-                      <button onClick={() => onSelectUnit({ ...unit, size: group.size, dim: group.dim, facilityName: f.name })} style={{ ...(unit.popular ? btn : btnSec), width: "100%", padding: "8px 0", fontSize: 13 }}>Reserve</button>
+                      <button onClick={() => onSelectUnit({ ...unit, size: group.size, dim: group.dim, facilityName: f.name })} style={{ ...(unit.popular ? btn : btnSec), width: "100%", padding: "8px 0", fontSize: 13 }}>Select unit</button>
                     </div>
                   </div>
                 ))}
@@ -697,7 +697,7 @@ export const CheckoutView = ({ isMobile, onBack, onConfirm, unit }) => {
           >
             &lt; Back to results
           </button>
-          <h2 style={{ fontFamily: "'Open Sans', sans-serif", color: "#fff", fontSize: 22 }}>Reserve your unit</h2>
+          <h2 style={{ fontFamily: "'Open Sans', sans-serif", color: "#fff", fontSize: 22 }}>Checkout</h2>
         </div>
       </div>
 
@@ -872,7 +872,7 @@ export const CheckoutView = ({ isMobile, onBack, onConfirm, unit }) => {
             {!isMobile && (
               <>
                 <button data-testid="pay-button" onClick={() => onConfirm(activeUnit)} style={{ ...btn, width: "100%", padding: 15, fontSize: 16, marginBottom: 10 }}>
-                  Reserve &amp; Pay ${total}.00
+                  Complete checkout — ${total}.00
                 </button>
                 <div style={{ textAlign: "center", fontSize: 12, color: B.text3, marginBottom: 5 }}>256-bit SSL · Charged only after you confirm</div>
                 <div style={{ textAlign: "center", fontSize: 11, color: B.text3 }}>Account created automatically after payment</div>
@@ -918,7 +918,7 @@ export const CheckoutView = ({ isMobile, onBack, onConfirm, unit }) => {
                 {isMobile && (
                   <>
                     <button data-testid="pay-button" onClick={onConfirm} style={{ ...btn, width: "100%", padding: 15, fontSize: 16, marginTop: 14, marginBottom: 10 }}>
-                      Reserve &amp; Pay ${total}.00
+                      Complete checkout — ${total}.00
                     </button>
                     <div style={{ textAlign: "center", fontSize: 12, color: B.text3, marginBottom: 5 }}>256-bit SSL · Charged only after you confirm</div>
                     <div style={{ textAlign: "center", fontSize: 11, color: B.text3 }}>Account created automatically after payment</div>
