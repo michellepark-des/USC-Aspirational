@@ -489,7 +489,7 @@ export const SearchView = ({ isMobile, onFacility, onSelectUnit }) => {
                     )}
                     <div style={{ padding: "10px 14px 0", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                       <span style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.7px", color: B.text3 }}>{unit.tier}</span>
-                      {unit.popular && <span style={{ fontSize: 10, fontWeight: 700, background: B.navy, color: "#fff", padding: "2px 7px", borderRadius: 3 }}>Popular</span>}
+                      {unit.popular && <span style={{ fontSize: 10, fontWeight: 700, background: "#FEE2E2", color: "#991B1B", padding: "2px 7px", borderRadius: 3 }}>Popular</span>}
                     </div>
                     <div style={{ padding: "6px 14px 14px", flex: 1, display: "flex", flexDirection: "column" }}>
                       <div style={{ fontSize: 15, fontWeight: 700, color: B.navy, marginBottom: 10 }}>{unit.label}</div>
@@ -628,7 +628,7 @@ export const FacilityView = ({ facility, isMobile, onBack, onSelectUnit }) => {
                     )}
                     <div style={{ padding: "10px 14px 0", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                       <span style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.7px", color: B.text3 }}>{unit.tier}</span>
-                      {unit.popular && <span style={{ fontSize: 10, fontWeight: 700, background: B.navy, color: "#fff", padding: "2px 7px", borderRadius: 3 }}>Popular</span>}
+                      {unit.popular && <span style={{ fontSize: 10, fontWeight: 700, background: "#FEE2E2", color: "#991B1B", padding: "2px 7px", borderRadius: 3 }}>Popular</span>}
                     </div>
                     <div style={{ padding: "6px 14px 14px" }}>
                       <div style={{ fontSize: 14, fontWeight: 700, color: B.navy, marginBottom: 10 }}>{unit.label}</div>
