@@ -504,7 +504,7 @@ export const SearchView = ({ isMobile, onFacility, onSelectUnit }) => {
                           <span style={{ fontSize: 13, color: B.text3 }}>/mo</span>
                           {unit.was && <span style={{ fontSize: 12, color: B.text3, textDecoration: "line-through", marginLeft: 4 }}>${unit.was}</span>}
                         </div>
-                        <button onClick={onSelectUnit} style={{ ...(unit.popular ? btn : btnSec), width: "100%", padding: "9px 0", fontSize: 13 }}>Reserve</button>
+                        <button onClick={() => onSelectUnit({ ...unit, size: group.size, dim: group.dim, facilityName: activeFac.name })} style={{ ...(unit.popular ? btn : btnSec), width: "100%", padding: "9px 0", fontSize: 13 }}>Reserve</button>
                       </div>
                     </div>
                   </div>
@@ -633,7 +633,7 @@ export const FacilityView = ({ facility, isMobile, onBack, onSelectUnit }) => {
                     <div style={{ padding: "6px 14px 14px" }}>
                       <div style={{ fontSize: 14, fontWeight: 700, color: B.navy, marginBottom: 10 }}>{unit.label}</div>
                       <div style={{ fontSize: 22, fontWeight: 700, color: B.navy, marginBottom: 8 }}>${unit.price}<span style={{ fontSize: 12, fontWeight: 400, color: B.text3 }}>/mo</span></div>
-                      <button onClick={onSelectUnit} style={{ ...(unit.popular ? btn : btnSec), width: "100%", padding: "8px 0", fontSize: 13 }}>Reserve</button>
+                      <button onClick={() => onSelectUnit({ ...unit, size: group.size, dim: group.dim, facilityName: f.name })} style={{ ...(unit.popular ? btn : btnSec), width: "100%", padding: "8px 0", fontSize: 13 }}>Reserve</button>
                     </div>
                   </div>
                 ))}
@@ -646,7 +646,7 @@ export const FacilityView = ({ facility, isMobile, onBack, onSelectUnit }) => {
   );
 };
 
-export const CheckoutView = ({ isMobile, onBack, onConfirm }) => {
+export const CheckoutView = ({ isMobile, onBack, onConfirm, unit }) => {
   const [form, setForm] = useState({ email: "", fullName: "", card: "", expiry: "", cvv: "", nameOnCard: "", protection: "basic" });
   const set = k => e => setForm(p => ({ ...p, [k]: e.target.value }));
 
@@ -655,9 +655,15 @@ export const CheckoutView = ({ isMobile, onBack, onConfirm }) => {
     { id: "premium", label: "Premium Coverage", price: 20, desc: "Up to $5,000 contents value" },
   ];
   const selectedPlan = PROTECTION_PLANS.find(p => p.id === form.protection) || PROTECTION_PLANS[0];
-  const monthlyRent = 119;
+
+  const monthlyRent = unit?.price ?? 119;
+  const unitLabel = unit?.label ?? "Medium Climate-Controlled";
+  const unitDesc = unit ? `${unit.size} · ${unit.dim}` : "Medium · 10x10";
+  const unitFacility = unit?.facilityName ?? "Buckhead, Peachtree Rd";
+  const hasPromo = unit?.promo ?? false;
   const adminFee = 25;
-  const total = monthlyRent + adminFee + selectedPlan.price;
+  const promoDiscount = hasPromo ? monthlyRent : 0;
+  const total = monthlyRent - promoDiscount + adminFee + selectedPlan.price;
 
   const SectionHeader = ({ title, sub }) => (
     <div style={{ padding: "14px 18px", borderBottom: "1px solid " + B.border }}>
@@ -791,17 +797,23 @@ export const CheckoutView = ({ isMobile, onBack, onConfirm }) => {
                 <div style={{ fontSize: 13, fontWeight: 700, color: B.navy, textTransform: "uppercase", letterSpacing: "0.5px" }}>Order summary</div>
               </div>
               <div style={{ padding: "16px 18px" }}>
-                <div style={{ fontWeight: 700, fontSize: 15, color: B.navy, marginBottom: 2 }}>Medium Climate-Controlled</div>
-                <div style={{ fontSize: 13, color: B.text3, marginBottom: 16 }}>10×10 · Buckhead, Peachtree Rd</div>
+                <div style={{ fontWeight: 700, fontSize: 15, color: B.navy, marginBottom: 2 }}>{unitLabel}</div>
+                <div style={{ fontSize: 13, color: B.text3, marginBottom: 16 }}>{unitDesc} · {unitFacility}</div>
+                {hasPromo && (
+                  <div style={{ background: "#fde68a", borderRadius: 4, padding: "6px 10px", marginBottom: 14, fontSize: 12, fontWeight: 700, color: B.navy }}>
+                    🎉 First Month Free applied
+                  </div>
+                )}
                 <div style={{ borderTop: "1px solid " + B.border, paddingTop: 12 }}>
                   {[
                     { label: "Monthly rent", val: `$${monthlyRent}.00` },
+                    ...(hasPromo ? [{ label: "First Month Free", val: `-$${monthlyRent}.00`, promo: true }] : []),
                     { label: "Admin fee (one-time)", val: `$${adminFee}.00` },
                     { label: "Protection plan", val: `$${selectedPlan.price}.00` },
                   ].map(row => (
                     <div key={row.label} style={{ display: "flex", justifyContent: "space-between", padding: "7px 0", borderBottom: "1px solid " + B.border }}>
-                      <span style={{ color: B.text2, fontSize: 14 }}>{row.label}</span>
-                      <span style={{ fontWeight: 600, fontSize: 14 }}>{row.val}</span>
+                      <span style={{ color: row.promo ? B.green : B.text2, fontSize: 14, fontWeight: row.promo ? 600 : 400 }}>{row.label}</span>
+                      <span style={{ fontWeight: 600, fontSize: 14, color: row.promo ? B.green : "inherit" }}>{row.val}</span>
                     </div>
                   ))}
                   <div style={{ display: "flex", justifyContent: "space-between", padding: "12px 0 4px", fontWeight: 700, fontSize: 16 }}>
@@ -829,12 +841,12 @@ export const CheckoutView = ({ isMobile, onBack, onConfirm }) => {
 };
 
 // @spec CHKOUT-CONF-001, CHKOUT-CONF-002, CHKOUT-CONF-003, CHKOUT-CONF-004
-export const ConfirmView = ({ onHome }) => (
+export const ConfirmView = ({ onHome, unit }) => (
   <div style={{ fontFamily: "'Open Sans', sans-serif" }}>
     <div style={{ background: B.navy, padding: "48px 0", textAlign: "center" }}>
       <div style={{ width: 64, height: 64, background: B.green, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px", fontSize: 28, color: "#fff", fontWeight: 700 }}>+</div>
       <h1 style={{ fontFamily: "'Open Sans', sans-serif", fontSize: "clamp(26px,4vw,40px)", fontWeight: 700, color: "#fff", marginBottom: 12 }}>You're in.</h1>
-      <p style={{ color: "rgba(255,255,255,0.7)", fontSize: 16 }}>Medium Climate-Controlled - Buckhead - Move-in starts today</p>
+      <p style={{ color: "rgba(255,255,255,0.7)", fontSize: 16 }}>{unit?.label ?? "Medium Climate-Controlled"} · {unit?.facilityName ?? "Buckhead"} · Move-in starts today</p>
     </div>
     <div style={{ ...ctrNarrow, padding: "40px 24px" }}>
       <div style={{ ...card, border: "2px solid " + B.navy, marginBottom: 24, padding: 22 }}>
@@ -911,9 +923,11 @@ export default function App() {
   const isMobile = useIsMobile();
   const [view, setView] = useState("home");
   const [selectedFacility, setSelectedFacility] = useState(FACILITIES[0]);
+  const [selectedUnit, setSelectedUnit] = useState(null);
 
   const go = v => { setView(v); window.scrollTo({ top: 0, behavior: "smooth" }); };
   const handleFacility = fac => { setSelectedFacility(fac); go("facility"); };
+  const handleSelectUnit = unit => { setSelectedUnit(unit); go("checkout"); };
 
   return (
     <div style={{ minHeight: "100vh", background: "#F7F9FC", fontFamily: "'Open Sans', sans-serif", color: B.text, fontSize: 15, display: "flex", flexDirection: "column" }}>
@@ -922,10 +936,10 @@ export default function App() {
       <Nav onHome={() => go("home")} onSearch={() => go("search")} />
       <div style={{ flex: 1 }}>
         {view === "home"     && <HomeView isMobile={isMobile} onSearch={() => go("search")} />}
-        {view === "search"   && <SearchView isMobile={isMobile} onFacility={handleFacility} onSelectUnit={() => go("checkout")} />}
-        {view === "facility" && <FacilityView isMobile={isMobile} facility={selectedFacility} onBack={() => go("search")} onSelectUnit={() => go("checkout")} />}
-        {view === "checkout" && <CheckoutView isMobile={isMobile} onBack={() => go("search")} onConfirm={() => go("confirm")} />}
-        {view === "confirm"  && <ConfirmView onHome={() => go("home")} />}
+        {view === "search"   && <SearchView isMobile={isMobile} onFacility={handleFacility} onSelectUnit={handleSelectUnit} />}
+        {view === "facility" && <FacilityView isMobile={isMobile} facility={selectedFacility} onBack={() => go("search")} onSelectUnit={handleSelectUnit} />}
+        {view === "checkout" && <CheckoutView isMobile={isMobile} unit={selectedUnit} onBack={() => go("search")} onConfirm={() => go("confirm")} />}
+        {view === "confirm"  && <ConfirmView unit={selectedUnit} onHome={() => go("home")} />}
       </div>
       <Footer isMobile={isMobile} />
     </div>
