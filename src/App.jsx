@@ -358,9 +358,16 @@ export const SearchView = ({ isMobile, onFacility, onSelectUnit }) => {
   const typeChips = ["All types", "Climate-controlled", "Drive-up", "Boat and RV"];
   const activeFac = FACILITIES.find(f => f.id === activeFacId);
 
-  const visibleGroups = activeSize === "All"
-    ? UNIT_GROUPS
-    : UNIT_GROUPS.filter(g => g.size === activeSize);
+  const TYPE_FEATURE = { "Climate-controlled": "Climate-controlled", "Drive-up": "Drive-up", "Boat and RV": "Boat" };
+
+  const visibleGroups = UNIT_GROUPS
+    .map(g => ({
+      ...g,
+      units: activeType === "All types"
+        ? g.units
+        : g.units.filter(u => u.features.some(f => f.toLowerCase().includes(TYPE_FEATURE[activeType]?.toLowerCase() ?? ""))),
+    }))
+    .filter(g => (activeSize === "All" || g.size === activeSize) && g.units.length > 0);
 
   return (
     <div style={{ ...ctr, padding: "32px 24px", fontFamily: "'Open Sans', sans-serif" }}>
@@ -456,6 +463,12 @@ export const SearchView = ({ isMobile, onFacility, onSelectUnit }) => {
           <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.6px", textTransform: "uppercase", color: B.text3, marginBottom: 16 }}>
             Available units - {activeFac.name}
           </div>
+          {visibleGroups.length === 0 && (
+            <div style={{ padding: "48px 0", textAlign: "center", color: B.text3 }}>
+              <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 8 }}>No units match your filters</div>
+              <div style={{ fontSize: 13 }}>Try clearing the type filter to see all available units.</div>
+            </div>
+          )}
           {visibleGroups.map(group => (
             <div key={group.id} style={{ marginBottom: 32 }}>
               <div style={{ display: "flex", alignItems: "baseline", gap: 12, marginBottom: 12, borderBottom: "2px solid " + B.navy, paddingBottom: 10 }}>
