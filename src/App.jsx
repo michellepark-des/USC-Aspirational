@@ -44,7 +44,7 @@ const UNIT_GROUPS = [
     id: "5x10", size: "Small", dim: "5x10", sqft: 50,
     analogy: "Similar in size to a walk-in closet. Fits a studio or 1-bedroom apartment.",
     units: [
-      { tier: "Good", tierColor: "#8499AF", price: 59, label: "Standard", detail: "Back of facility, upper floor, drive-up access", features: ["Drive-up", "Upper floor", "Lock included"] },
+      { tier: "Good", tierColor: "#8499AF", price: 59, label: "Standard", detail: "Back of facility, upper floor, drive-up access", features: ["Drive-up", "Upper floor", "Lock included"], promo: true },
       { tier: "Better", tierColor: "#5B789E", price: 74, was: 89, label: "Convenient", detail: "Mid-facility, ground floor, interior hallway access", features: ["Interior access", "Ground floor", "Lock included"] },
       { tier: "Best", tierColor: "#5A9176", price: 89, label: "Premium", detail: "Near entrance, ground floor, wide drive-up aisle", features: ["Near entrance", "Drive-up", "Ground floor", "Lock included"], popular: true },
     ],
@@ -54,7 +54,7 @@ const UNIT_GROUPS = [
     analogy: "Similar in size to a small bedroom. Fits a 2-bedroom house or typical garage.",
     units: [
       { tier: "Good", tierColor: "#8499AF", price: 89, label: "Standard", detail: "Back of facility, upper floor, interior access", features: ["Interior access", "Upper floor", "Lock included"] },
-      { tier: "Better", tierColor: "#5B789E", price: 109, was: 129, label: "Climate-Controlled", detail: "Climate-controlled, ground floor, interior hallway", features: ["Climate-controlled", "Ground floor", "Interior access", "Lock included"], popular: true },
+      { tier: "Better", tierColor: "#5B789E", price: 109, was: 129, label: "Climate-Controlled", detail: "Climate-controlled, ground floor, interior hallway", features: ["Climate-controlled", "Ground floor", "Interior access", "Lock included"], popular: true, promo: true },
       { tier: "Best", tierColor: "#5A9176", price: 129, label: "Climate-Controlled Premium", detail: "Climate-controlled, near elevator, ground floor, wide aisle", features: ["Climate-controlled", "Near elevator", "Ground floor", "Wide aisle", "Lock included"] },
     ],
   },
@@ -64,7 +64,7 @@ const UNIT_GROUPS = [
     units: [
       { tier: "Good", tierColor: "#8499AF", price: 129, label: "Standard Drive-Up", detail: "Back of facility, ground level, drive-up access", features: ["Drive-up", "Ground floor", "Lock included"] },
       { tier: "Better", tierColor: "#5B789E", price: 159, was: 179, label: "Climate-Controlled", detail: "Climate-controlled, ground floor, interior access", features: ["Climate-controlled", "Ground floor", "Interior access", "Lock included"], popular: true },
-      { tier: "Best", tierColor: "#5A9176", price: 189, label: "Climate-Controlled Premium", detail: "Climate-controlled, nearest to loading dock, oversized door", features: ["Climate-controlled", "Near loading dock", "Oversized door", "Ground floor", "Lock included"] },
+      { tier: "Best", tierColor: "#5A9176", price: 189, label: "Climate-Controlled Premium", detail: "Climate-controlled, nearest to loading dock, oversized door", features: ["Climate-controlled", "Near loading dock", "Oversized door", "Ground floor", "Lock included"], promo: true },
     ],
   },
   {
@@ -482,6 +482,11 @@ export const SearchView = ({ isMobile, onFacility, onSelectUnit }) => {
               >
                 {group.units.map(unit => (
                   <div key={unit.tier} style={{ ...card, border: unit.popular ? "2px solid " + B.navy : "1.5px solid " + B.border, display: "flex", flexDirection: "column" }}>
+                    {unit.promo && (
+                      <div style={{ background: "#fbbf24", padding: "5px 14px", fontSize: 11, fontWeight: 700, color: B.navy, letterSpacing: "0.3px" }}>
+                        🎉 First Month Free
+                      </div>
+                    )}
                     <div style={{ padding: "10px 14px 0", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                       <span style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.7px", color: B.text3 }}>{unit.tier}</span>
                       {unit.popular && <span style={{ fontSize: 10, fontWeight: 700, background: B.navy, color: "#fff", padding: "2px 7px", borderRadius: 3 }}>Popular</span>}
@@ -616,6 +621,11 @@ export const FacilityView = ({ facility, isMobile, onBack, onSelectUnit }) => {
               >
                 {group.units.map(unit => (
                   <div key={unit.tier} style={{ ...card, border: unit.popular ? "2px solid " + B.navy : "1.5px solid " + B.border }}>
+                    {unit.promo && (
+                      <div style={{ background: "#fbbf24", padding: "5px 14px", fontSize: 11, fontWeight: 700, color: B.navy, letterSpacing: "0.3px" }}>
+                        🎉 First Month Free
+                      </div>
+                    )}
                     <div style={{ padding: "10px 14px 0", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                       <span style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.7px", color: B.text3 }}>{unit.tier}</span>
                       {unit.popular && <span style={{ fontSize: 10, fontWeight: 700, background: B.navy, color: "#fff", padding: "2px 7px", borderRadius: 3 }}>Popular</span>}
