@@ -469,15 +469,12 @@ export const SearchView = ({ isMobile, onFacility, onSelectUnit }) => {
               >
                 {group.units.map(unit => (
                   <div key={unit.tier} style={{ ...card, border: unit.popular ? "2px solid " + B.navy : "1.5px solid " + B.border, display: "flex", flexDirection: "column" }}>
-                    <div style={{ background: unit.tierColor, padding: "7px 14px", display: "flex", alignItems: "center", gap: 8 }}>
-                      <span style={{ color: "#fff", fontSize: 13, fontWeight: 700 }}>{unit.tier}</span>
-                      {unit.popular && <span style={{ fontSize: 10, fontWeight: 700, background: "rgba(255,255,255,0.2)", color: "#fff", padding: "2px 7px", borderRadius: 3 }}>Popular</span>}
+                    <div style={{ padding: "10px 14px 0", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                      <span style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.7px", color: B.text3 }}>{unit.tier}</span>
+                      {unit.popular && <span style={{ fontSize: 10, fontWeight: 700, background: B.navy, color: "#fff", padding: "2px 7px", borderRadius: 3 }}>Popular</span>}
                     </div>
-                    <div style={{ padding: "14px 16px", flex: 1, display: "flex", flexDirection: "column" }}>
-                      <div style={{ fontSize: 15, fontWeight: 700, color: B.navy, marginBottom: 4 }}>{unit.label}</div>
-                      <div style={{ fontSize: 12, color: B.text2, lineHeight: 1.5, marginBottom: 10, padding: "7px 10px", background: tierBg[unit.tier], borderLeft: "3px solid " + unit.tierColor }}>
-                        {unit.detail}
-                      </div>
+                    <div style={{ padding: "6px 14px 14px", flex: 1, display: "flex", flexDirection: "column" }}>
+                      <div style={{ fontSize: 15, fontWeight: 700, color: B.navy, marginBottom: 10 }}>{unit.label}</div>
                       <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginBottom: 14 }}>
                         {unit.features.map(f => (
                           <span key={f} style={{ fontSize: 11, fontWeight: 600, padding: "3px 8px", borderRadius: 20, background: B.bg, color: B.text2, border: "1px solid " + B.border }}>{f}</span>
@@ -563,13 +560,12 @@ export const FacilityView = ({ facility, isMobile, onBack, onSelectUnit }) => {
               >
                 {group.units.map(unit => (
                   <div key={unit.tier} style={{ ...card, border: unit.popular ? "2px solid " + B.navy : "1.5px solid " + B.border }}>
-                    <div style={{ background: unit.tierColor, padding: "6px 14px" }}>
-                      <span style={{ color: "#fff", fontSize: 12, fontWeight: 700 }}>{unit.tier}</span>
-                      {unit.popular && <span style={{ fontSize: 10, color: "rgba(255,255,255,0.8)", marginLeft: 6 }}>- Popular</span>}
+                    <div style={{ padding: "10px 14px 0", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                      <span style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.7px", color: B.text3 }}>{unit.tier}</span>
+                      {unit.popular && <span style={{ fontSize: 10, fontWeight: 700, background: B.navy, color: "#fff", padding: "2px 7px", borderRadius: 3 }}>Popular</span>}
                     </div>
-                    <div style={{ padding: "12px 14px" }}>
-                      <div style={{ fontSize: 14, fontWeight: 700, color: B.navy, marginBottom: 4 }}>{unit.label}</div>
-                      <div style={{ fontSize: 12, color: B.text2, marginBottom: 10 }}>{unit.detail}</div>
+                    <div style={{ padding: "6px 14px 14px" }}>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: B.navy, marginBottom: 10 }}>{unit.label}</div>
                       <div style={{ fontSize: 22, fontWeight: 700, color: B.navy, marginBottom: 8 }}>${unit.price}<span style={{ fontSize: 12, fontWeight: 400, color: B.text3 }}>/mo</span></div>
                       <button onClick={onSelectUnit} style={{ ...btn, width: "100%", padding: "8px 0", fontSize: 13 }}>Reserve</button>
                     </div>
@@ -584,16 +580,8 @@ export const FacilityView = ({ facility, isMobile, onBack, onSelectUnit }) => {
   );
 };
 
-// @spec CHKOUT-UI-001, CHKOUT-UI-002, CHKOUT-UI-003, CHKOUT-UI-004, CHKOUT-UI-005,
-//       CHKOUT-UI-006, CHKOUT-LEAD-001, CHKOUT-LEAD-002, CHKOUT-LEAD-003,
-//       CHKOUT-PAY-001, CHKOUT-PAY-002, CHKOUT-ORD-001, CHKOUT-ORD-002,
-//       CHKOUT-ORD-003, CHKOUT-ORD-004, CHKOUT-ORD-005,
-//       CHKOUT-NAV-000, CHKOUT-NAV-001, CHKOUT-NAV-002, CHKOUT-NAV-003,
-//       RESP-CHKOUT-001, RESP-CHKOUT-002, RESP-CHKOUT-003
 export const CheckoutView = ({ isMobile, onBack, onConfirm }) => {
-  // @spec CHKOUT-NAV-000
-  const [currentStep, setCurrentStep] = useState(1);
-  const [form, setForm] = useState({ firstName: "", email: "", card: "", expiry: "", cvv: "", nameOnCard: "", protection: "basic" });
+  const [form, setForm] = useState({ email: "", fullName: "", card: "", expiry: "", cvv: "", nameOnCard: "", protection: "basic" });
   const set = k => e => setForm(p => ({ ...p, [k]: e.target.value }));
 
   const PROTECTION_PLANS = [
@@ -605,26 +593,12 @@ export const CheckoutView = ({ isMobile, onBack, onConfirm }) => {
   const adminFee = 25;
   const total = monthlyRent + adminFee + selectedPlan.price;
 
-  // @spec CHKOUT-NAV-001, CHKOUT-NAV-002
-  const handleBack = () => {
-    if (currentStep === 2) {
-      setCurrentStep(1);
-    } else {
-      onBack();
-    }
-  };
-
-  const segmentBg = (label) => {
-    if (label === "Contact" && currentStep === 1) return "#fbbf24";
-    if (label === "Payment" && currentStep === 2) return "#fbbf24";
-    return "rgba(255,255,255,0.2)";
-  };
-
-  const segmentLabelColor = (label) => {
-    if (label === "Contact" && currentStep === 1) return "rgba(255,255,255,0.9)";
-    if (label === "Payment" && currentStep === 2) return "rgba(255,255,255,0.9)";
-    return "rgba(255,255,255,0.4)";
-  };
+  const SectionHeader = ({ title, sub }) => (
+    <div style={{ padding: "14px 18px", borderBottom: "1px solid " + B.border }}>
+      <div style={{ fontSize: 13, fontWeight: 700, color: B.navy, textTransform: "uppercase", letterSpacing: "0.5px" }}>{title}</div>
+      {sub && <div style={{ fontSize: 12, color: B.text3, marginTop: 3 }}>{sub}</div>}
+    </div>
+  );
 
   return (
     <div style={{ fontFamily: "'Open Sans', sans-serif" }}>
@@ -632,25 +606,12 @@ export const CheckoutView = ({ isMobile, onBack, onConfirm }) => {
         <div style={{ ...ctrNarrow, padding: "0 24px" }}>
           <button
             data-testid="checkout-back-btn"
-            onClick={handleBack}
+            onClick={onBack}
             style={{ background: "none", border: "none", color: "rgba(255,255,255,0.7)", fontSize: 14, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 6, marginBottom: 14, fontFamily: "inherit" }}
           >
-            &lt; Back
+            &lt; Back to results
           </button>
-          <h2 style={{ fontFamily: "'Open Sans', sans-serif", color: "#fff", fontSize: 22, marginBottom: 16 }}>Reserve your unit</h2>
-          {/* @spec CHKOUT-UI-002, CHKOUT-UI-003, CHKOUT-UI-004, CHKOUT-UI-005 */}
-          <div data-testid="progress-bar" style={{ display: "flex", gap: 8 }}>
-            {[
-              { label: "Contact", testId: "progress-seg-contact" },
-              { label: "Payment", testId: "progress-seg-payment" },
-              { label: "Done", testId: "progress-seg-done" },
-            ].map(({ label, testId }) => (
-              <div key={label} style={{ flex: 1 }}>
-                <div data-testid={testId} style={{ height: 4, background: segmentBg(label), marginBottom: 4 }} />
-                <div style={{ fontSize: 11, color: segmentLabelColor(label), fontWeight: 600 }}>{label}</div>
-              </div>
-            ))}
-          </div>
+          <h2 style={{ fontFamily: "'Open Sans', sans-serif", color: "#fff", fontSize: 22 }}>Reserve your unit</h2>
         </div>
       </div>
 
@@ -659,150 +620,137 @@ export const CheckoutView = ({ isMobile, onBack, onConfirm }) => {
           data-testid="checkout-layout"
           style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 320px", gap: 28, alignItems: "start" }}
         >
-          {/* Form column */}
+          {/* ── Form column ───────────────────────────────────────── */}
           <div data-testid="checkout-form">
-            {/* @spec CHKOUT-LEAD-001, CHKOUT-LEAD-002, CHKOUT-LEAD-003 */}
-            {currentStep === 1 && (
-              <div data-testid="checkout-step-1" style={card}>
-                <div style={{ padding: "16px 20px", borderBottom: "1px solid " + B.border }}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: B.navy, textTransform: "uppercase", letterSpacing: "0.5px" }}>Step 1 - Contact info</div>
-                  <div style={{ fontSize: 12, color: B.text3, marginTop: 4 }}>We'll hold your unit and send you a confirmation. No credit card yet.</div>
+
+            {/* 1 — Contact */}
+            <div style={{ ...card, marginBottom: 14 }}>
+              <SectionHeader title="Contact" sub="We'll send your confirmation here." />
+              <div style={{ padding: 18 }}>
+                <div style={{ marginBottom: 14 }}>
+                  <label htmlFor="checkout-email" style={lbl}>Email</label>
+                  <input id="checkout-email" style={inp} type="email" placeholder="you@email.com" value={form.email} onChange={set("email")} />
                 </div>
-                <div style={{ padding: 20 }}>
-                  <div style={{ marginBottom: 14 }}>
-                    <label htmlFor="checkout-name" style={lbl}>First name</label>
-                    <input id="checkout-name" style={inp} type="text" placeholder="Your first name" value={form.firstName} onChange={set("firstName")} />
-                  </div>
-                  <div style={{ marginBottom: 20 }}>
-                    <label htmlFor="checkout-email" style={lbl}>Email</label>
-                    <input id="checkout-email" style={inp} type="email" placeholder="you@email.com" value={form.email} onChange={set("email")} />
-                  </div>
-                  {/* @spec CHKOUT-UI-006 */}
-                  <button
-                    data-testid="checkout-continue-btn"
-                    onClick={() => setCurrentStep(2)}
-                    style={{ ...btn, width: "100%", padding: 14, fontSize: 15 }}
-                  >
-                    Continue to payment
-                  </button>
+                <div>
+                  <label htmlFor="checkout-fullName" style={lbl}>Full name</label>
+                  <input id="checkout-fullName" style={inp} type="text" placeholder="First and last name" value={form.fullName} onChange={set("fullName")} />
                 </div>
               </div>
-            )}
+            </div>
 
-            {/* @spec CHKOUT-PAY-001, CHKOUT-PAY-002 */}
-            {currentStep === 2 && (
-              <div data-testid="checkout-step-2" style={{ ...card, marginBottom: 20 }}>
-                <div style={{ padding: "16px 20px", borderBottom: "1px solid " + B.border }}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: B.navy, textTransform: "uppercase", letterSpacing: "0.5px" }}>Step 2 - Payment info</div>
-                  <div style={{ fontSize: 12, color: B.text3, marginTop: 4 }}>Your card is charged only after you review the rental agreement.</div>
+            {/* 2 — Protection plan */}
+            <div style={{ ...card, marginBottom: 14 }}>
+              <div style={{ padding: "14px 18px", borderBottom: "1px solid " + B.border, display: "flex", alignItems: "center", gap: 10 }}>
+                <div style={{ fontSize: 13, fontWeight: 700, color: B.navy, textTransform: "uppercase", letterSpacing: "0.5px" }}>Protection Plan</div>
+                <span
+                  data-testid="required-badge"
+                  style={{ fontSize: 10, fontWeight: 700, background: "#FEF2F2", color: "#991B1B", border: "1px solid #FCA5A5", borderRadius: 4, padding: "2px 7px" }}
+                >
+                  Required
+                </span>
+              </div>
+              <div style={{ padding: 18 }}>
+                <p style={{ fontSize: 13, color: B.text3, marginBottom: 14, lineHeight: 1.5 }}>All units require contents protection. Choose the coverage level that fits your needs.</p>
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  {PROTECTION_PLANS.map(plan => {
+                    const selected = form.protection === plan.id;
+                    return (
+                      <button
+                        key={plan.id}
+                        onClick={() => setForm(p => ({ ...p, protection: plan.id }))}
+                        style={{
+                          display: "flex", alignItems: "center", gap: 12, padding: "14px 16px",
+                          background: selected ? "#EEF3FF" : B.bg,
+                          border: selected ? "2px solid " + B.navy : "1.5px solid " + B.border,
+                          borderRadius: 4, cursor: "pointer", textAlign: "left", fontFamily: "inherit", width: "100%",
+                        }}
+                      >
+                        <div style={{ width: 18, height: 18, borderRadius: "50%", flexShrink: 0, border: selected ? "5px solid " + B.navy : "2px solid " + B.border2, background: "#fff" }} />
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontSize: 14, fontWeight: 700, color: B.navy }}>{plan.label}</div>
+                          <div style={{ fontSize: 12, color: B.text3, marginTop: 2 }}>{plan.desc}</div>
+                        </div>
+                        <div style={{ fontSize: 15, fontWeight: 700, color: B.navy, flexShrink: 0 }}>${plan.price}/mo</div>
+                      </button>
+                    );
+                  })}
                 </div>
-                <div style={{ padding: 20 }}>
-                  <div style={{ marginBottom: 14 }}>
-                    <label htmlFor="checkout-card" style={lbl}>Card number</label>
-                    <input id="checkout-card" style={inp} type="text" placeholder="1234 5678 9012 3456" value={form.card} onChange={set("card")} />
-                  </div>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 14 }}>
-                    <div>
-                      <label htmlFor="checkout-expiry" style={lbl}>Expiry</label>
-                      <input id="checkout-expiry" style={inp} type="text" placeholder="MM / YY" value={form.expiry} onChange={set("expiry")} />
-                    </div>
-                    <div>
-                      <label htmlFor="checkout-cvv" style={lbl}>CVV</label>
-                      <input id="checkout-cvv" style={inp} type="text" placeholder="..." value={form.cvv} onChange={set("cvv")} />
-                    </div>
+              </div>
+            </div>
+
+            {/* 3 — Payment */}
+            <div style={{ ...card, marginBottom: 20 }}>
+              <SectionHeader title="Payment" sub="Charged only after you confirm your rental." />
+              <div style={{ padding: 18 }}>
+                <div style={{ marginBottom: 14 }}>
+                  <label htmlFor="checkout-card" style={lbl}>Card number</label>
+                  <input id="checkout-card" style={inp} type="text" placeholder="1234 5678 9012 3456" value={form.card} onChange={set("card")} />
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 14 }}>
+                  <div>
+                    <label htmlFor="checkout-expiry" style={lbl}>Expiry</label>
+                    <input id="checkout-expiry" style={inp} type="text" placeholder="MM / YY" value={form.expiry} onChange={set("expiry")} />
                   </div>
                   <div>
-                    <label htmlFor="checkout-nameOnCard" style={lbl}>Name on card</label>
-                    <input id="checkout-nameOnCard" style={inp} type="text" placeholder="Full name" value={form.nameOnCard} onChange={set("nameOnCard")} />
+                    <label htmlFor="checkout-cvv" style={lbl}>CVV</label>
+                    <input id="checkout-cvv" style={inp} type="text" placeholder="···" value={form.cvv} onChange={set("cvv")} />
                   </div>
                 </div>
+                <div>
+                  <label htmlFor="checkout-nameOnCard" style={lbl}>Name on card</label>
+                  <input id="checkout-nameOnCard" style={inp} type="text" placeholder="Full name" value={form.nameOnCard} onChange={set("nameOnCard")} />
+                </div>
               </div>
+            </div>
+
+            {/* CTA — desktop only (mobile CTA lives in order summary, after the total) */}
+            {!isMobile && (
+              <>
+                <button data-testid="pay-button" onClick={onConfirm} style={{ ...btn, width: "100%", padding: 15, fontSize: 16, marginBottom: 10 }}>
+                  Reserve &amp; Pay ${total}.00
+                </button>
+                <div style={{ textAlign: "center", fontSize: 12, color: B.text3, marginBottom: 5 }}>256-bit SSL · Charged only after you confirm</div>
+                <div style={{ textAlign: "center", fontSize: 11, color: B.text3 }}>Account created automatically after payment</div>
+              </>
             )}
           </div>
 
-          {/* Order summary column */}
-          {/* @spec CHKOUT-ORD-003, CHKOUT-ORD-004 */}
+          {/* ── Order summary column ──────────────────────────────── */}
           <div
             data-testid="order-summary-wrapper"
             style={{ position: isMobile ? "static" : "sticky", top: 80 }}
           >
-            <div data-testid="order-summary" style={{ ...card, marginBottom: 16 }}>
+            <div data-testid="order-summary" style={card}>
               <div style={{ padding: "14px 18px", borderBottom: "1px solid " + B.border }}>
-                <div style={{ fontSize: 13, fontWeight: 700, color: B.navy, textTransform: "uppercase", letterSpacing: "0.5px" }}>Your unit</div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: B.navy, textTransform: "uppercase", letterSpacing: "0.5px" }}>Order summary</div>
               </div>
               <div style={{ padding: "16px 18px" }}>
                 <div style={{ fontWeight: 700, fontSize: 15, color: B.navy, marginBottom: 2 }}>Medium Climate-Controlled</div>
-                <div style={{ fontSize: 13, color: B.text3, marginBottom: 16 }}>10x10 - Buckhead, Peachtree Rd</div>
+                <div style={{ fontSize: 13, color: B.text3, marginBottom: 16 }}>10×10 · Buckhead, Peachtree Rd</div>
                 <div style={{ borderTop: "1px solid " + B.border, paddingTop: 12 }}>
-                  {/* @spec CHKOUT-ORD-001 */}
                   {[
                     { label: "Monthly rent", val: `$${monthlyRent}.00` },
                     { label: "Admin fee (one-time)", val: `$${adminFee}.00` },
+                    { label: "Protection plan", val: `$${selectedPlan.price}.00` },
                   ].map(row => (
-                    <div key={row.label} style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", borderBottom: "1px solid " + B.border }}>
+                    <div key={row.label} style={{ display: "flex", justifyContent: "space-between", padding: "7px 0", borderBottom: "1px solid " + B.border }}>
                       <span style={{ color: B.text2, fontSize: 14 }}>{row.label}</span>
-                      <span style={{ fontWeight: 600 }}>{row.val}</span>
+                      <span style={{ fontWeight: 600, fontSize: 14 }}>{row.val}</span>
                     </div>
                   ))}
-                  {/* @spec CHKOUT-ORD-002, CHKOUT-ORD-005 */}
-                  <div style={{ padding: "10px 0", borderBottom: "1px solid " + B.border }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                      <span style={{ color: B.text2, fontSize: 14 }}>
-                        Protection plan
-                        <span
-                          data-testid="required-badge"
-                          style={{ fontSize: 10, fontWeight: 700, background: "#FEF2F2", color: "#991B1B", border: "1px solid #FCA5A5", borderRadius: 4, padding: "2px 7px", marginLeft: 6 }}
-                        >
-                          Required
-                        </span>
-                      </span>
-                      <span style={{ fontWeight: 600 }}>${selectedPlan.price}.00</span>
-                    </div>
-                    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                      {PROTECTION_PLANS.map(plan => {
-                        const selected = form.protection === plan.id;
-                        return (
-                          <button
-                            key={plan.id}
-                            onClick={() => setForm(p => ({ ...p, protection: plan.id }))}
-                            style={{
-                              display: "flex", alignItems: "center", gap: 10, padding: "10px 12px",
-                              background: selected ? "#F0F4FF" : B.bg,
-                              border: selected ? "2px solid " + B.navy : "1.5px solid " + B.border,
-                              borderRadius: 4, cursor: "pointer", textAlign: "left", fontFamily: "inherit", width: "100%",
-                            }}
-                          >
-                            <div style={{
-                              width: 16, height: 16, borderRadius: "50%", flexShrink: 0,
-                              border: selected ? "5px solid " + B.navy : "2px solid " + B.border2,
-                              background: "#fff",
-                            }} />
-                            <div style={{ flex: 1 }}>
-                              <div style={{ fontSize: 13, fontWeight: 700, color: B.navy }}>{plan.label}</div>
-                              <div style={{ fontSize: 11, color: B.text3, marginTop: 1 }}>{plan.desc}</div>
-                            </div>
-                            <div style={{ fontSize: 13, fontWeight: 700, color: B.navy, flexShrink: 0 }}>${plan.price}/mo</div>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                  <div style={{ display: "flex", justifyContent: "space-between", padding: "12px 0", fontWeight: 700, fontSize: 16 }}>
-                    <span>First month total</span><span>${total}.00</span>
+                  <div style={{ display: "flex", justifyContent: "space-between", padding: "12px 0 4px", fontWeight: 700, fontSize: 16 }}>
+                    <span>First month total</span>
+                    <span>${total}.00</span>
                   </div>
                 </div>
-                {/* @spec RESP-CHKOUT-003 — pay button inside order-summary, step 2 only */}
-                {currentStep === 2 && (
+                {/* Mobile CTA lives here, after the total */}
+                {isMobile && (
                   <>
-                    <button
-                      data-testid="pay-button"
-                      onClick={onConfirm}
-                      style={{ ...btn, width: "100%", padding: 15, fontSize: 16 }}
-                    >
-                      Pay ${total}.00 — Secure my unit
+                    <button data-testid="pay-button" onClick={onConfirm} style={{ ...btn, width: "100%", padding: 15, fontSize: 16, marginTop: 14, marginBottom: 10 }}>
+                      Reserve &amp; Pay ${total}.00
                     </button>
-                    <div style={{ textAlign: "center", fontSize: 12, color: B.text3, marginTop: 10 }}>256-bit SSL · No charge until you confirm</div>
-                    <div style={{ textAlign: "center", fontSize: 11, color: B.text3, marginTop: 6 }}>Account created automatically after payment</div>
+                    <div style={{ textAlign: "center", fontSize: 12, color: B.text3, marginBottom: 5 }}>256-bit SSL · Charged only after you confirm</div>
+                    <div style={{ textAlign: "center", fontSize: 11, color: B.text3 }}>Account created automatically after payment</div>
                   </>
                 )}
               </div>
