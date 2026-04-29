@@ -355,8 +355,18 @@ export const SearchView = ({ isMobile, onFacility, onSelectUnit }) => {
   const [activeSize, setActiveSize] = useState("All");
   const [activeType, setActiveType] = useState("All types");
   const [activeFacId, setActiveFacId] = useState("buckhead");
+  const [unitsTransitioning, setUnitsTransitioning] = useState(false);
   const typeChips = ["All types", "Climate-controlled", "Drive-up", "Boat and RV"];
   const activeFac = FACILITIES.find(f => f.id === activeFacId);
+
+  const changeFacility = (id) => {
+    if (id === activeFacId) return;
+    setUnitsTransitioning(true);
+    setTimeout(() => {
+      setActiveFacId(id);
+      setUnitsTransitioning(false);
+    }, 160);
+  };
 
   const TYPE_FEATURE = { "Climate-controlled": "Climate-controlled", "Drive-up": "Drive-up", "Boat and RV": "Boat" };
 
@@ -409,7 +419,7 @@ export const SearchView = ({ isMobile, onFacility, onSelectUnit }) => {
               <button
                 key={f.id}
                 data-testid="facility-chip"
-                onClick={() => setActiveFacId(f.id)}
+                onClick={() => changeFacility(f.id)}
                 style={activeFacId === f.id ? { ...chipOn, padding: "4px 11px", fontSize: 12 } : { ...chipBase, padding: "4px 11px", fontSize: 12 }}
               >
                 {f.name} · {f.dist}
@@ -438,7 +448,7 @@ export const SearchView = ({ isMobile, onFacility, onSelectUnit }) => {
             {FACILITIES.map(f => {
               const active = f.id === activeFacId;
               return (
-                <button key={f.id} onClick={() => setActiveFacId(f.id)} style={{ ...card, display: "flex", alignItems: "center", gap: 8, padding: "10px 12px", marginBottom: 8, cursor: "pointer", width: "100%", textAlign: "left", border: active ? "2px solid " + B.navy : "1.5px solid " + B.border, background: active ? "#F0F4FF" : B.surface }}>
+                <button key={f.id} onClick={() => changeFacility(f.id)} style={{ ...card, display: "flex", alignItems: "center", gap: 8, padding: "10px 12px", marginBottom: 8, cursor: "pointer", width: "100%", textAlign: "left", border: active ? "2px solid " + B.navy : "1.5px solid " + B.border, background: active ? "#F0F4FF" : B.surface }}>
                   <div style={{ width: 28, height: 28, background: active ? B.navy : B.bg, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, flexShrink: 0, color: active ? "#fff" : B.text3, fontWeight: 700 }}>+</div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontWeight: 700, fontSize: 12, color: B.navy, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{f.name}</div>
@@ -459,7 +469,7 @@ export const SearchView = ({ isMobile, onFacility, onSelectUnit }) => {
         )}
 
         {/* Unit list */}
-        <div>
+        <div style={{ opacity: unitsTransitioning ? 0 : 1, transform: unitsTransitioning ? "translateY(8px)" : "translateY(0)", transition: "opacity 160ms ease, transform 160ms ease" }}>
           <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.6px", textTransform: "uppercase", color: B.text3, marginBottom: 16 }}>
             Available units - {activeFac.name}
           </div>
