@@ -516,6 +516,20 @@ export const SearchView = ({ isMobile, onFacility, onSelectUnit }) => {
 // @spec RESP-FAC-001, RESP-FAC-002, RESP-FAC-003, RESP-FAC-004
 export const FacilityView = ({ facility, isMobile, onBack, onSelectUnit }) => {
   const f = facility || FACILITIES[0];
+  const [activeSize, setActiveSize] = useState("All");
+  const [activeType, setActiveType] = useState("All types");
+  const typeChips = ["All types", "Climate-controlled", "Drive-up", "Boat and RV"];
+  const TYPE_FEATURE = { "Climate-controlled": "Climate-controlled", "Drive-up": "Drive-up", "Boat and RV": "Boat" };
+
+  const visibleGroups = UNIT_GROUPS
+    .map(g => ({
+      ...g,
+      units: activeType === "All types"
+        ? g.units
+        : g.units.filter(u => u.features.some(feat => feat.toLowerCase().includes(TYPE_FEATURE[activeType]?.toLowerCase() ?? ""))),
+    }))
+    .filter(g => (activeSize === "All" || g.size === activeSize) && g.units.length > 0);
+
   return (
     <div style={{ fontFamily: "'Open Sans', sans-serif" }}>
       <div style={{ background: B.navy, padding: "40px 0 32px" }}>
@@ -559,9 +573,38 @@ export const FacilityView = ({ facility, isMobile, onBack, onSelectUnit }) => {
             <div style={{ fontSize: 13, color: B.text3 }}>{f.phone} - Self-service kiosk available outside office hours</div>
           </div>
         </div>
-        <h3 style={{ fontSize: 18, fontWeight: 700, color: B.text, marginBottom: 20 }}>Available at this location</h3>
+        <h3 style={{ fontSize: 18, fontWeight: 700, color: B.text, marginBottom: 16 }}>Available at this location</h3>
+
+        {/* Filter bar */}
+        <div style={{ background: B.surface, border: "1px solid " + B.border, padding: "10px 16px", marginBottom: 24 }}>
+          <div style={{ marginBottom: 10 }}>
+            <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.6px", textTransform: "uppercase", color: B.text3, marginBottom: 7 }}>Size</div>
+            <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+              {["All", "Small", "Medium", "Large", "XL"].map(c => (
+                <button key={c} onClick={() => setActiveSize(c)} style={activeSize === c ? { ...chipOn, padding: "4px 11px", fontSize: 12 } : { ...chipBase, padding: "4px 11px", fontSize: 12 }}>
+                  {c === "All" ? "All sizes" : c + " (" + (UNIT_GROUPS.find(g => g.size === c) || {}).dim + ")"}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div style={{ borderTop: "1px solid " + B.border, paddingTop: 10 }}>
+            <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.6px", textTransform: "uppercase", color: B.text3, marginBottom: 7 }}>Type</div>
+            <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+              {typeChips.map(c => (
+                <button key={c} onClick={() => setActiveType(c)} style={activeType === c ? { ...chipOn, padding: "4px 11px", fontSize: 12 } : { ...chipBase, padding: "4px 11px", fontSize: 12 }}>{c}</button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {visibleGroups.length === 0 && (
+          <div style={{ padding: "48px 0", textAlign: "center", color: B.text3 }}>
+            <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 8 }}>No units match your filters</div>
+            <div style={{ fontSize: 13 }}>Try clearing the filters to see all available units.</div>
+          </div>
+        )}
         <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
-          {UNIT_GROUPS.map(group => (
+          {visibleGroups.map(group => (
             <div key={group.id}>
               <div style={{ display: "flex", alignItems: "baseline", gap: 12, marginBottom: 12, borderBottom: "2px solid " + B.navy, paddingBottom: 8 }}>
                 <div style={{ fontSize: 18, fontWeight: 700, color: B.navy }}>{group.size}</div>
